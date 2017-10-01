@@ -23,9 +23,10 @@ def performRead(command):
     elif boardName=="":
         print("\n No board was selected before read command was issued")
     else:
-        messages=r.get(boardName)
+        messages=r.lrange(boardName,0,-1)
         for message in messages:
-            print("\n"+ message)
+            message=message.decode("utf-8")
+            print("\n"+ str(message))
 
 
 
@@ -41,7 +42,7 @@ def performListen(command):
         subscribing=True
         publisherSubscribe=r.pubsub()
         res = publisherSubscribe.subscribe(boardName)
-        print(res)
+        print(username +"Has been subscribed to listen to boardName"+boardName)
 
 
 
@@ -66,7 +67,6 @@ def performWrite(command):
         message=username+":"+" ".join(splitCommand[1:])
         r.publish(boardName,message)
         if r.exists(boardName):
-            r.get(boardName)
             r.rpush(boardName,message)
         else:
             r.rpush(boardName,message)
