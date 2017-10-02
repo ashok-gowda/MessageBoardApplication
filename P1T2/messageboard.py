@@ -2,9 +2,19 @@ import redis
 dir(redis)
 
 r = redis.Redis()
+#Start of Global Variables
 boardName=""
 subscribing = False;
 publisherSubscribe=1
+thread=-1
+username=""
+#End of Global Variables
+
+def my_handler(message):
+     dataMessage=message['data'].decode("utf-8")
+     print(str(dataMessage))
+
+
 
 def performSelect(command):
     global boardName
@@ -32,7 +42,7 @@ def performRead(command):
 
 
 def performListen(command):
-    global boardName, subscribing, publisherSubscribe
+    global boardName, subscribing, publisherSubscribe,thread
     splitCommand = command.split()
     if len(splitCommand) != 1:
         print("\nInsufficient number of parameters for the command listen \n Syntax 'listen'")
@@ -41,12 +51,24 @@ def performListen(command):
     else:
         subscribing=True
         publisherSubscribe=r.pubsub()
-        res = publisherSubscribe.subscribe(boardName)
-        print(username +"Has been subscribed to listen to boardName"+boardName)
+        publisherSubscribe.subscribe(**{boardName: my_handler})
+        thread=publisherSubscribe.run_in_thread(sleep_time=0.001)
+        print("\n"+username + " Has been subscribed to listen to boardName " + boardName)
 
 
 
 def performStop(command):
+    global thread
+    splitCommand = command.split()
+    if len(splitCommand) != 1:
+        print("\nInsufficient number of parameters for the command listen \n Syntax 'listen'")
+    elif boardName == "":
+        print("\n No board was selected before listen command was issued")
+    else:
+        if thread!=-1:
+            thread.stop()
+            print("\n"+username+" has been unsubscribed from boardName"+boardName)
+            thread=-1
     pass
 
 
@@ -71,26 +93,12 @@ def performWrite(command):
         else:
             r.rpush(boardName,message)
 
-print("\n List of Commands")
-print("\n  select <boardname>")
-print("\n  write message")
-print("\n listen")
-print("\n read")
-print("\n stop- Use this to stop listening and write new messages or read new messages")
-print("\n CTRL-C End the program")
-print("\nEnter the Username")
-username=input()
+
 
 def inputCommand():
-    command=input()
-    parse(command)
-
-
-
-def parse(command):
     while True:
         try:
-
+            print("\nEnter command input")
             command=input()
             if command.__contains__("select"):
                 performSelect(command)
@@ -106,3 +114,15 @@ def parse(command):
                 print("Command does not exist")
         except KeyError as e:
             performStop("stop")
+
+print("\n List of Commands")
+print("\n  select <boardname>")
+print("\n  write message")
+print("\n listen")
+print("\n read")
+print("\n stop- Use this to stop listening and write new messages or read new messages")
+print("\n CTRL-C End the program")
+print("\n Press stop after listen if you want to start writing messages else you will be listening to the messages you have written")
+print("\nEnter the Username")
+username=input()
+inputCommand()
