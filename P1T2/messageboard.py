@@ -71,27 +71,38 @@ def performWrite(command):
         else:
             r.rpush(boardName,message)
 
-
+print("\n List of Commands")
+print("\n  select <boardname>")
+print("\n  write message")
+print("\n listen")
+print("\n read")
+print("\n stop- Use this to stop listening and write new messages or read new messages")
+print("\n CTRL-C End the program")
 print("\nEnter the Username")
 username=input()
-while True:
-    try:
-        if subscribing:
-            print("Sub")
-            for item in publisherSubscribe.listen():
-                print(item)
-        command=input()
-        if command.__contains__("select"):
-            performSelect(command)
-        elif command.__contains__("read"):
-            performRead(command)
-        elif command.__contains__("write"):
-            performWrite(command)
-        elif command.__contains__("listen"):
-            performListen(command)
-        elif command.__contains__("stop"):
-            performStop(command)
-        else:
-            print("Command does not exist")
-    except KeyError as e:
-        performStop("stop")
+
+def inputCommand():
+    command=input()
+    parse(command)
+
+
+
+def parse(command):
+    while True:
+        try:
+
+            command=input()
+            if command.__contains__("select"):
+                performSelect(command)
+            elif command.__contains__("read"):
+                performRead(command)
+            elif command.__contains__("write"):
+                performWrite(command)
+            elif command.__contains__("listen"):
+                performListen(command)
+            elif command.__contains__("stop"):
+                performStop(command)
+            else:
+                print("Command does not exist")
+        except KeyError as e:
+            performStop("stop")
