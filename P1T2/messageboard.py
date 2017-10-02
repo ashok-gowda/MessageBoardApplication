@@ -67,7 +67,7 @@ def performStop(command):
     else:
         if thread!=-1:
             thread.stop()
-            print("\n"+username+" has been unsubscribed from boardName"+boardName)
+            print("\n"+username+" has been unsubscribed from listening to boardName"+boardName)
             thread=-1
     pass
 
