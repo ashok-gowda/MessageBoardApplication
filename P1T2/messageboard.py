@@ -1,4 +1,5 @@
 import redis
+import sys
 dir(redis)
 
 r = redis.Redis()
@@ -61,9 +62,9 @@ def performStop(command):
     global thread
     splitCommand = command.split()
     if len(splitCommand) != 1:
-        print("\nInsufficient number of parameters for the command listen \n Syntax 'listen'")
+        print("\nInsufficient number of parameters for the command stop \n Syntax 'stop'")
     elif boardName == "":
-        print("\n No board was selected before listen command was issued")
+        print("\n No board was selected before stop command was issued")
     else:
         if thread!=-1:
             thread.stop()
@@ -98,7 +99,6 @@ def performWrite(command):
 def inputCommand():
     while True:
         try:
-            print("\nEnter command input")
             command=input()
             if command.__contains__("select"):
                 performSelect(command)
@@ -112,8 +112,10 @@ def inputCommand():
                 performStop(command)
             else:
                 print("Command does not exist")
-        except KeyError as e:
+        except KeyboardInterrupt as e:
             performStop("stop")
+            print("\nEnd of Program")
+            sys.exit()
 
 print("\n List of Commands")
 print("\n  select <boardname>")
@@ -125,4 +127,5 @@ print("\n CTRL-C End the program")
 print("\n Press stop after listen if you want to start writing messages else you will be listening to the messages you have written")
 print("\nEnter the Username")
 username=input()
+print("\nEnter command input")
 inputCommand()
